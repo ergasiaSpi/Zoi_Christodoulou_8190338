@@ -131,35 +131,35 @@ public class Appointment {
 	*/
 	public Appointment insertNewAppointment(Appointment appointment) throws SQLException {
 	
-	try {
-		// Σύνδεση με τη βάση δεδομένων
-		Connection conn = DriverManager.getConnection(DB_SERVER, DB_USER, DB_PASSWORD);
-	
-		// Προετοιμασία της SQL ερώτησης για εκτέλεση στη βάση
-		String sql = "INSERT INTO appointments (user_id, salon_id, stylist_id, service_id, date, time_start, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
-	    PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-	    stmt.setInt(1, appointment.getUserId());
-	    stmt.setInt(2, appointment.getSalonId());
-	    stmt.setInt(3, appointment.getStylistId());
-	    stmt.setInt(4, appointment.getServiceId());
-	    stmt.setDate(5, appointment.getDate());
-	    stmt.setTime(6, appointment.getTimeStart());
-	    stmt.setString(7, appointment.getStatus());
-	    stmt.executeUpdate();
-	
-	    // Εάν η εισαγωγή του νέου appointment έγινε με επιτυχία
-	    // βρίσκουμε το appointmentId που εκχώρησε η βάση δεδομένων
-	    // στη νέα εγγραφή και ενημερώνουμε το αντικείμενο appointment
-	    // που περάσαμε σαν όρισμα με αυτή.
-	    ResultSet rs = stmt.getGeneratedKeys();
-	    if (rs.next()) {
-		appointment.setAppointmentId(rs.getInt(1));
-		// Εάν η εισαγωγή έγινε με επιτυχία, επιστρέφουμε το αντικείμενο 
-		return appointment;
-	    }
-	} catch(Exception e) {
-		System.out.println(e.getMessage());
-	}
+		try {
+			// Σύνδεση με τη βάση δεδομένων
+			Connection conn = DriverManager.getConnection(DB_SERVER, DB_USER, DB_PASSWORD);
+		
+			// Προετοιμασία της SQL ερώτησης για εκτέλεση στη βάση
+			String sql = "INSERT INTO appointments (user_id, salon_id, stylist_id, service_id, date, time_start, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
+		    PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+		    stmt.setInt(1, appointment.getUserId());
+		    stmt.setInt(2, appointment.getSalonId());
+		    stmt.setInt(3, appointment.getStylistId());
+		    stmt.setInt(4, appointment.getServiceId());
+		    stmt.setDate(5, appointment.getDate());
+		    stmt.setTime(6, appointment.getTimeStart());
+		    stmt.setString(7, appointment.getStatus());
+		    stmt.executeUpdate();
+		
+		    // Εάν η εισαγωγή του νέου appointment έγινε με επιτυχία
+		    // βρίσκουμε το appointmentId που εκχώρησε η βάση δεδομένων
+		    // στη νέα εγγραφή και ενημερώνουμε το αντικείμενο appointment
+		    // που περάσαμε σαν όρισμα με αυτή.
+		    ResultSet rs = stmt.getGeneratedKeys();
+		    if (rs.next()) {
+			appointment.setAppointmentId(rs.getInt(1));
+			// Εάν η εισαγωγή έγινε με επιτυχία, επιστρέφουμε το αντικείμενο 
+			return appointment;
+		    }
+		} catch(Exception e) {
+			System.out.println(e.getMessage());
+		}
 		// Εάν η εγγραφή αποτύχει, επιστρέφουμε null
 		return null;
 	}
@@ -168,39 +168,70 @@ public class Appointment {
 	// το οποίο περνάμε σαν όρισμα στη μέθοδο
 	public static Appointment searchAppointmentById(int id) throws SQLException {
 	
-	try {
-		// Σύνδεση με τη βάση δεδομένων
-		Connection conn = DriverManager.getConnection(DB_SERVER, DB_USER, DB_PASSWORD);
+		try {
+			// Σύνδεση με τη βάση δεδομένων
+			Connection conn = DriverManager.getConnection(DB_SERVER, DB_USER, DB_PASSWORD);
+			
+			// Προετοιμασία της SQL ερώτησης για εκτέλεση στη βάση
+		    String sql = "SELECT * FROM appointments WHERE appointment_id = ?";
+		    PreparedStatement stmt = conn.prepareStatement(sql);
+		    stmt.setInt(1, id);
+		    ResultSet rs = stmt.executeQuery();
 		
-		// Προετοιμασία της SQL ερώτησης για εκτέλεση στη βάση
-	    String sql = "SELECT * FROM appointments WHERE appointment_id = ?";
-	    PreparedStatement stmt = conn.prepareStatement(sql);
-	    stmt.setInt(1, id);
-	    ResultSet rs = stmt.executeQuery();
-	
-	    // Εάν επιστράφηκαν αποτελέσματα από τη βάση δεδομένων
-	    // δημιουργούμε ένα νέο αντικείμενο, το οποίο επιστρέφουμε στο πρόγραμμα
-	    if (rs.next()) {
-		Appointment appointment = new Appointment();
-		// Εκχωρούμε τις τιμές που επέστρεψε η SQL SELECT
-		// στα ιδιωτικά γνωρίσματα του αντικειμένου appointment
-		appointment.setAppointmentId(rs.getInt("appointment_id"));
-		appointment.setUserId(rs.getInt("user_id"));
-		appointment.setSalonId(rs.getInt("salon_id"));
-		appointment.setStylistId(rs.getInt("stylist_id"));
-		appointment.setServiceId(rs.getInt("service_id"));
-		appointment.setDate(rs.getDate("date"));
-		appointment.setTimeStart(rs.getTime("time_start"));
-		appointment.setStatus(rs.getString("status"));
-		// Εάν βρεθεί ραντεβού με το συγκεκριμένο id
-		// επιστρέφεται το αντίστοιχο αντικείμενο
-		return appointment;
-	    }
-	} catch(Exception e) {
-		System.out.println(e.getMessage());
+		    // Εάν επιστράφηκαν αποτελέσματα από τη βάση δεδομένων
+		    // δημιουργούμε ένα νέο αντικείμενο, το οποίο επιστρέφουμε στο πρόγραμμα
+		    if (rs.next()) {
+			Appointment appointment = new Appointment();
+			// Εκχωρούμε τις τιμές που επέστρεψε η SQL SELECT
+			// στα ιδιωτικά γνωρίσματα του αντικειμένου appointment
+			appointment.setAppointmentId(rs.getInt("appointment_id"));
+			appointment.setUserId(rs.getInt("user_id"));
+			appointment.setSalonId(rs.getInt("salon_id"));
+			appointment.setStylistId(rs.getInt("stylist_id"));
+			appointment.setServiceId(rs.getInt("service_id"));
+			appointment.setDate(rs.getDate("date"));
+			appointment.setTimeStart(rs.getTime("time_start"));
+			appointment.setStatus(rs.getString("status"));
+			// Εάν βρεθεί ραντεβού με το συγκεκριμένο id
+			// επιστρέφεται το αντίστοιχο αντικείμενο
+			return appointment;
+		    }
+		} catch(Exception e) {
+			System.out.println(e.getMessage());
+		}
+		return null; // Εάν δεν βρει ραντεβού, επιστρέφει τιμή null
 	}
-	return null; // Εάν δεν βρει ραντεβού, επιστρέφει τιμή null
-	}
+
+	// Ενημέρωση της εγγραφής ραντεβού με id του αντικειμένου
+	// που περνάμε σαν όρισμα
+	public boolean updateAppointment(Appointment appointment) throws SQLException {
 	
+		try {
+			// Σύνδεση με τη βάση δεδομένων
+			Connection conn = DriverManager.getConnection(DB_SERVER, DB_USER, DB_PASSWORD);
+			
+			// Προετοιμασία της SQL ερώτησης για εκτέλεση στη βάση
+			String sql = "UPDATE appointments SET "
+					+ "user_id = ?, salon_id = ?, stylist_id = ?, service_id = ?, date = ?, time_start = ?, status = ? "
+					+ "WHERE appointment_id = ?";
+		    PreparedStatement stmt = conn.prepareStatement(sql);
+		    stmt.setInt(1, appointment.getUserId());
+		    stmt.setInt(2, appointment.getSalonId());
+		    stmt.setInt(3, appointment.getStylistId());
+		    stmt.setInt(4, appointment.getServiceId());
+		    stmt.setDate(5, appointment.getDate());
+		    stmt.setTime(6, appointment.getTimeStart());
+		    stmt.setString(7, appointment.getStatus());
+		    stmt.setInt(8, appointment.getAppointmentId());
+		    stmt.executeUpdate();
+		    // Εάν η ενημέρωση ολοκληρώθηκε επιστρέφουμε true
+		    return true;
+		} catch(Exception e) {
+			System.out.println(e.getMessage());
+		}
+		// Εάν η ενημέρωση αποτύχει, επιστρέφουμε false
+		return false;
+	}
+
 	
 }
