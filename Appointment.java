@@ -233,5 +233,28 @@ public class Appointment {
 		return false;
 	}
 
+	/* Διαγραφή εγγραφής για το αντικείμενο που περνάμε σαν όρισμα
+	* Επιστρέφει true εάν η διαγραφή έγινε και
+	* false εάν η SQL DELETE απέτυχε για κάποιον λόγο
+	*/
+	public boolean deleteAppointment(Appointment appointment) throws SQLException {
+	
+		try {
+			// Σύνδεση με τη βάση δεδομένων
+			Connection conn = DriverManager.getConnection(DB_SERVER, DB_USER, DB_PASSWORD);
+			
+			// Προετοιμασία της SQL ερώτησης για εκτέλεση στη βάση
+			String sql = "DELETE FROM appointments WHERE appointment_id = ?";
+		    PreparedStatement stmt = conn.prepareStatement(sql);
+		    stmt.setInt(1, appointment.getAppointmentId());
+		    stmt.executeUpdate();
+		    // Εάν η διαγραφή ολοκληρώθηκε στη βάση επιστρέφουμε true
+		    return true;
+		} catch(Exception e) {
+			System.out.println(e.getMessage());
+		}
+		// Εάν η διαγραφή ap;etyxe, επιστρέφουμε false
+		return false;
+	}
 	
 }
