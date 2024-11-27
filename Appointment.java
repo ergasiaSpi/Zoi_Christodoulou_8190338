@@ -1,3 +1,19 @@
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+/* ********************************************************************************************
+ * Η κλάση Appointment υλοποιεί τις βασικές λειτουργίες του πίνακα appointments:
+ * δημιουργία, αναζήτηση, ενημέρωση και διαγραφή εγγραφών από τη βάση δεδομένων.
+ * Επίσης υλοποιεί Getters και Setters για τη διαχείριση των ιδιωτικών γνωρισμάτων της κλάσης
+ *
+ * Δομή:
+ * Ορισμός κλάσης: Περιλαμβάνει τα πεδία του πίνακα ως ιδιωτικά γνωρίσματα.
+ * Κατασκευαστές: Δημιουργία κατασκευαστών για αρχικοποίηση αντικειμένων.
+ * Getters και Setters: Για πρόσβαση στις μεταβλητές.
+ * Μεθόδους για τη διεκπεραίωση των λειτουργιών της βάσης δεδομένων.
+ * ********************************************************************************************/
+
 public class Appointment {
 
 	// Για κάθε πεδίο του πίνακα δημιουργούμε αντίστοιχο ιδιωτικό γνώρισμα της κλάσης
@@ -255,6 +271,43 @@ public class Appointment {
 		}
 		// Εάν η διαγραφή ap;etyxe, επιστρέφουμε false
 		return false;
+	}
+
+	// Επιστροφή λίστας με όλα τα appointments που βρίσκονται στη βάση δεδομένων
+	public static List<Appointment> listAppointments() throws SQLException {
+	
+		List<Appointment> appointments = new ArrayList<>();
+		
+		try {
+			// Σύνδεση με τη βάση δεδομένων
+			Connection conn = DriverManager.getConnection(DB_SERVER, DB_USER, DB_PASSWORD);
+		
+			// Προετοιμασία της SQL ερώτησης για εκτέλεση στη βάση
+			String sql = "SELECT * FROM appointments";
+		    Statement stmt = conn.createStatement();
+		    ResultSet rs = stmt.executeQuery(sql);
+		    
+		    // Διασχίζουμε τα αποτελέσματα που επέστρεψε η SQL SELECT 
+		    // δημιουργούμε αντικείμενα Appointment και τα εισάγουμε 
+		    // στο ArrayList appointments
+		    while (rs.next()) {
+			Appointment appointment = new Appointment();
+			appointment.setAppointmentId(rs.getInt("appointment_id"));
+			appointment.setUserId(rs.getInt("user_id"));
+			appointment.setSalonId(rs.getInt("salon_id"));
+			appointment.setStylistId(rs.getInt("stylist_id"));
+			appointment.setServiceId(rs.getInt("service_id"));
+			appointment.setDate(rs.getDate("date"));
+			appointment.setTimeStart(rs.getTime("time_start"));
+			appointment.setStatus(rs.getString("status"));
+			appointments.add(appointment);
+		    }
+		} catch(Exception e) {
+			System.out.println(e.getMessage());
+		}
+		// Επιστρέφουμε το ArrayList των αντιμειμένων appointment
+		// για όλες τις εγγραφές που βρέθηκαν στον πίνακα Appointments
+		return appointments;
 	}
 	
 }
